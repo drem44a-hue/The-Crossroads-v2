@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مفترق الطرق | النسخة المئوية</title>
+    <title>مفترق الطرق | النسخة السرية</title>
     <style>
         :root { --gold: #edba11; --bg: #05070a; --card: #111827; --text: #f3f4f6; }
         body { font-family: 'Cairo', sans-serif; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; }
@@ -17,7 +17,8 @@
         button:disabled { opacity: 0.3; cursor: not-allowed; }
         .shop-item { background: #111827; border: 1px solid #374151; padding: 10px; margin: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
         .admin-txt { color: #00ffcc; font-weight: bold; text-shadow: 0 0 10px #00ffcc; }
-        input { padding: 15px; width: 70%; border-radius: 10px; border: 1px solid var(--gold); background: #000; color: #fff; margin-bottom: 15px; }
+        input { padding: 15px; width: 70%; border-radius: 10px; border: 1px solid var(--gold); background: #000; color: #fff; margin-bottom: 15px; text-align: center; }
+        .hidden { display: none; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -25,8 +26,9 @@
 
 <div id="game-container">
     <div id="login-screen" class="screen active">
-        <h1 style="color: var(--gold)">🌌 أساطير الـ 100 قصة</h1>
-        <input type="text" id="username" placeholder="اكتب اسمك يا بطل...">
+        <h1 style="color: var(--gold)">🌌 بوابة الأساطير</h1>
+        <p>اكتب اسمك للبدء (كلمة السر للمطور فقط)</p>
+        <input type="text" id="username" placeholder="اكتب اسمك هنا...">
         <button onclick="login()" style="width: 75%">دخول العالم</button>
     </div>
 
@@ -34,128 +36,117 @@
         <div class="header">
             <div>👤 <span id="p-name"></span> <span id="p-badge"></span></div>
             <div>💰 <span id="p-coins">0</span></div>
-            <div>📖 <span id="p-unlocked">1</span>/100</div>
+            <div>🏆 <span id="p-wins">0</span></div>
         </div>
 
         <div id="main-nav">
-            <h2 id="current-location">الساحة المركزية</h2>
-            <p id="game-text">أهلاً بك في عالم لا ينتهي.. ماذا ستفعل الآن؟</p>
-            <div class="btn-grid" id="main-actions">
-                <button onclick="mine()">⛏️ العمل في المنجم (+50💰)</button>
-                <button onclick="showShop()">🛒 المتجر الخاص</button>
-                <button onclick="showStories()">📜 قائمة القصص (المهمات)</button>
+            <h2 id="loc-title">الساحة المركزية</h2>
+            <p id="game-text">أهلاً بك.. اجمع المال لتفتح الـ 100 قصة الأسطورية!</p>
+            <div class="btn-grid">
+                <button onclick="mine()">⛏️ العمل في المنجم (+100💰)</button>
+                <button onclick="showShop()">🛒 متجر الـ 100 قصة</button>
+                <button onclick="showStories()">📜 العب القصص المفتوحة</button>
             </div>
         </div>
 
-        <div id="shop-view" class="hidden" style="margin-top:20px;">
-            <h3>🛒 متجر القصص الحصري</h3>
-            <div id="shop-items" style="max-height: 300px; overflow-y: auto;"></div>
-            <button onclick="backToMain()" style="margin-top:10px; width:100%">🔙 العودة للساحة</button>
+        <div id="shop-view" class="hidden">
+            <h3>🛒 المتجر الملكي</h3>
+            <div id="shop-items" style="max-height: 350px; overflow-y: auto;"></div>
+            <button onclick="backToMain()" style="width:100%; margin-top:10px;">🔙 عودة</button>
         </div>
 
-        <div id="stories-view" class="hidden" style="margin-top:20px;">
-            <h3>📜 المهمات المفتوحة</h3>
-            <div id="unlocked-stories" class="btn-grid"></div>
-            <button onclick="backToMain()" style="margin-top:10px; width:100%">🔙 العودة للساحة</button>
+        <div id="stories-view" class="hidden">
+            <h3>📜 اختر قصة لتبدأها</h3>
+            <div id="story-list" class="btn-grid"></div>
+            <button onclick="backToMain()" style="width:100%; margin-top:10px;">🔙 عودة</button>
         </div>
     </div>
 </div>
 
 <script>
-    let player = { name: "", coins: 0, unlockedCount: 1 };
+    let player = { name: "", coins: 0, wins: 0, unlocked: [1] };
     
-    // توليد 100 اسم قصة
-    const storyNames = [
-        "البداية", "غابة الموت", "برج السحر", "كهف الأفاعي", "وادي الذهب", "عرش الثلج", "بوابة النجوم", "مدينة الغبار", "بحر الظلمات", "جبل العمالقة",
-        "سرداب الأرواح", "مستنقع السم", "منجم الماس", "قصر الرياح", "جزيرة النار", "حصن الفرسان", "طريق الحرير", "واحة السراب", "مقبرة الملوك", "بركان الغضب"
-        // سيتم تكرار النمط برقم القصة ليصل لـ 100
-    ];
-
+    // كلمة السر الخاصة بك هي "مطور" أو "admin"
     function login() {
-        const name = document.getElementById('username').value.trim();
-        if(!name) return;
-        player.name = name;
-        if(name === "تيم" || name.toLowerCase() === "teem") {
+        const val = document.getElementById('username').value.trim();
+        if(!val) return;
+        player.name = val;
+        
+        if(val === "مطور" || val === "admin") {
             player.coins = 9999999;
-            player.unlockedCount = 100;
-            document.getElementById('p-badge').innerHTML = "<span class='admin-txt'>[المالك]</span>";
+            player.wins = 1000;
+            for(let i=1; i<=100; i++) player.unlocked.push(i);
+            document.getElementById('p-badge').innerHTML = "<span class='admin-txt'>[👑 المطور]</span>";
         }
+        
         document.getElementById('login-screen').classList.remove('active');
         document.getElementById('game-screen').classList.add('active');
-        document.getElementById('p-name').innerText = name;
+        document.getElementById('p-name').innerText = (val === "مطور") ? "تيم" : val;
         updateUI();
     }
 
     function updateUI() {
         document.getElementById('p-coins').innerText = player.coins;
-        document.getElementById('p-unlocked').innerText = player.unlockedCount;
+        document.getElementById('p-wins').innerText = player.wins;
     }
 
     function mine() {
-        player.coins += 50;
-        document.getElementById('game-text').innerText = "لقد عملت بجد وحصلت على 50 عملة ذهبية!";
+        player.coins += 100;
+        document.getElementById('game-text').innerText = "حصلت على 100 عملة من المنجم!";
         updateUI();
     }
 
     function showShop() {
-        document.getElementById('main-nav').style.display = 'none';
+        document.getElementById('main-nav').classList.add('hidden');
         document.getElementById('shop-view').classList.remove('hidden');
-        const shopDiv = document.getElementById('shop-items');
-        shopDiv.innerHTML = "";
-
-        for(let i = 2; i <= 100; i++) {
-            const price = i * 100;
-            const name = storyNames[i-1] || `مهمة رقم ${i}`;
-            const item = document.createElement('div');
-            item.className = 'shop-item';
-            const isUnlocked = i <= player.unlockedCount;
-            item.innerHTML = `
-                <span>${name} (${price}💰)</span>
-                <button onclick="buyStory(${i}, ${price})" ${isUnlocked ? 'disabled' : ''}>
-                    ${isUnlocked ? 'تم الشراء' : 'شراء'}
-                </button>
-            `;
-            shopDiv.appendChild(item);
+        const container = document.getElementById('shop-items');
+        container.innerHTML = "";
+        for(let i=1; i<=100; i++) {
+            const price = i * 200;
+            const isOwned = player.unlocked.includes(i);
+            const div = document.createElement('div');
+            div.className = 'shop-item';
+            div.innerHTML = `<span>قصة رقم ${i} (${price}💰)</span>
+                             <button onclick="buy(${i}, ${price})" ${isOwned ? 'disabled' : ''}>${isOwned ? 'مملوكة' : 'شراء'}</button>`;
+            container.appendChild(div);
         }
     }
 
-    function buyStory(id, price) {
+    function buy(id, price) {
         if(player.coins >= price) {
             player.coins -= price;
-            if(id > player.unlockedCount) player.unlockedCount = id;
+            player.unlocked.push(id);
             updateUI();
             showShop();
-            alert("مبروك! فتحت قصة جديدة.");
-        }
+        } else { alert("مالك لا يكفي!"); }
     }
 
     function showStories() {
-        document.getElementById('main-nav').style.display = 'none';
+        document.getElementById('main-nav').classList.add('hidden');
         document.getElementById('stories-view').classList.remove('hidden');
-        const list = document.getElementById('unlocked-stories');
+        const list = document.getElementById('story-list');
         list.innerHTML = "";
-
-        for(let i = 1; i <= player.unlockedCount; i++) {
+        player.unlocked.forEach(id => {
             const btn = document.createElement('button');
-            const name = storyNames[i-1] || `مهمة رقم ${i}`;
-            btn.innerText = name;
-            btn.onclick = () => playStory(name, i);
+            btn.innerText = `العب القصة ${id}`;
+            btn.onclick = () => play(id);
             list.appendChild(btn);
-        }
+        });
     }
 
-    function playStory(name, level) {
-        document.getElementById('stories-view').classList.add('hidden');
-        document.getElementById('main-nav').style.display = 'block';
-        const winAmount = level * 150;
-        document.getElementById('game-text').innerText = `أنت الآن في قصة [${name}].. هزمت الوحوش وحصلت على مكافأة قدرها ${winAmount}💰!`;
-        player.coins += winAmount;
+    function play(id) {
+        const reward = id * 300;
+        player.coins += reward;
+        player.wins += 1;
+        alert(`لقد فزت في القصة رقم ${id} وحصلت على ${reward}💰!`);
         updateUI();
+        backToMain();
     }
 
     function backToMain() {
-        document.querySelectorAll('#shop-view, #stories-view').forEach(v => v.classList.add('hidden'));
-        document.getElementById('main-nav').style.display = 'block';
+        document.getElementById('shop-view').classList.add('hidden');
+        document.getElementById('stories-view').classList.add('hidden');
+        document.getElementById('main-nav').classList.remove('hidden');
     }
 </script>
 </body>
