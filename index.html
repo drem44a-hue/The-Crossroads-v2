@@ -3,228 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEGEND ENGINE v3.0 | SECURITY CORE</title>
+    <title>LEGEND CORE v4.0 | المحرك الحقيقي</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
-        :root { --gold: #ffcc00; --red: #ff4444; --bg: #0a0e17; --panel: #161b22; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: #c9d1d9; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        :root { --gold: #ffcc00; --bg: #05070a; --panel: #111827; --accent: #3b82f6; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: #e5e7eb; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        #app-container { width: 100%; max-width: 900px; background: var(--panel); border-right: 2px solid var(--gold); border-left: 2px solid var(--gold); position: relative; display: flex; flex-direction: column; }
         
-        /* Particle Background */
-        #bg-canvas { position: absolute; top: 0; left: 0; z-index: -1; }
-
-        .auth-container { background: var(--panel); padding: 40px; border-radius: 20px; border: 1px solid #30363d; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 400px; text-align: center; animation: slideUp 0.5s ease; }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        h1 { color: var(--gold); font-weight: 900; letter-spacing: 2px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 8px; font-family: 'Cairo'; }
-        button { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-family: 'Cairo'; }
-        button:hover { filter: brightness(1.2); transform: scale(1.02); }
-
-        .game-interface { display: none; width: 95%; max-width: 1000px; background: var(--panel); border-radius: 15px; padding: 20px; border: 1px solid var(--gold); }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-item { background: #0d1117; padding: 15px; border-radius: 10px; border-bottom: 3px solid var(--gold); text-align: center; }
+        /* شاشات الحماية */
+        .auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .auth-card { background: var(--panel); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); text-align: center; width: 350px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #374151; color: #fff; border-radius: 8px; text-align: center; }
         
-        .story-area { background: #0d1117; padding: 25px; border-radius: 10px; margin: 20px 0; border-right: 5px solid var(--gold); font-size: 1.2rem; min-height: 100px; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-        
-        .admin-glow { animation: glow 1.5s infinite alternate; color: #00ffcc !important; font-weight: 900; }
-        @keyframes glow { from { text-shadow: 0 0 5px #00ffcc; } to { text-shadow: 0 0 20px #00ffcc; } }
-        .hidden { display: none; }
-        .error { color: var(--red); font-size: 0.8rem; margin-top: 5px; }
+        /* الهيدر */
+        .game-header { background: #1f2937; padding: 20px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; border-bottom: 3px solid var(--gold); }
+        .stat-item { text-align: center; background: #111; padding: 10px; border-radius: 8px; border: 1px solid #374151; }
+        .stat-label { font-size: 0.7rem; color: #9ca3af; display: block; }
+        .stat-val { font-weight: bold; color: var(--gold); font-size: 1.1rem; }
+
+        /* المحتوى الرئيسي */
+        .main-content { padding: 20px; flex-grow: 1; overflow-y: auto; }
+        .screen { display: none; }
+        .active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* المتجر والقصص */
+        .grid-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { background: #1f2937; padding: 15px; border-radius: 12px; border: 1px solid #374151; transition: 0.3s; }
+        .card:hover { border-color: var(--gold); transform: translateY(-5px); }
+        button { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: 'Cairo'; transition: 0.2s; }
+        button:hover:not(:disabled) { filter: brightness(1.2); }
+        button:disabled { background: #4b5563; cursor: not-allowed; }
+
+        /* القصة والأحداث */
+        .story-engine { background: #000; padding: 25px; border-radius: 15px; border-right: 6px solid var(--gold); line-height: 1.8; font-size: 1.2rem; }
+        .choice-btn { margin-top: 15px; background: #374151; }
+
+        /* قائمة المتصدرين */
+        .leaderboard { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .leaderboard tr { border-bottom: 1px solid #374151; }
+        .leaderboard td { padding: 12px; }
+        .rank-gold { color: var(--gold); font-weight: 900; }
+
+        .nav-bar { display: flex; background: #1f2937; border-top: 2px solid var(--gold); }
+        .nav-bar button { flex: 1; border-radius: 0; background: transparent; color: #9ca3af; }
+        .nav-bar button.active-nav { color: var(--gold); border-bottom: 3px solid var(--gold); }
     </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
-
-<div id="auth-box" class="auth-container">
-    <h1>LEGEND OS</h1>
-    <p id="auth-title">قم بتسجيل الدخول للوصول للمحرك</p>
-    <input type="text" id="user-name" placeholder="اسم المستخدم">
-    <input type="password" id="user-pass" placeholder="كلمة المرور">
-    <button onclick="Auth.process()">دخول النظام</button>
-    <p id="auth-error" class="error hidden">خطأ في البيانات!</p>
-    <div style="margin-top: 15px; font-size: 0.8rem;">
-        <a href="#" onclick="Auth.toggleMode()" id="toggle-link" style="color: var(--gold); text-decoration: none;">ليس لديك حساب؟ سجل الآن</a>
+<div id="auth-screen" class="auth-overlay">
+    <div class="auth-card">
+        <h1 style="color: var(--gold)">CORE ENGINE</h1>
+        <p>نظام الحماية والتحقق</p>
+        <input type="text" id="u-name" placeholder="اسم المستخدم">
+        <input type="password" id="u-pass" placeholder="كلمة المرور">
+        <button onclick="Core.auth()">دخول النظام</button>
+        <p id="auth-msg" style="color:red; font-size:0.8rem; margin-top:10px;"></p>
+        <button onclick="Core.toggleRegister()" style="background:none; color:var(--accent); font-size:0.8rem;">إنشاء حساب جديد</button>
     </div>
 </div>
 
-<div id="main-game" class="game-interface">
-    <div class="stats-grid">
-        <div class="stat-item"><span>المغامر</span><br><span id="s-name" style="color: var(--gold)">-</span></div>
-        <div class="stat-item"><span>الذهب</span><br><span id="s-gold" style="color: var(--gold)">0</span></div>
-        <div class="stat-item"><span>الفوز</span><br><span id="s-wins" style="color: var(--gold)">0</span></div>
-        <div class="stat-item"><span>القوة</span><br><span id="s-power" style="color: var(--gold)">100%</span></div>
+<div id="app-container">
+    <div class="game-header">
+        <div class="stat-item"><span class="stat-label">المغامر</span><span id="p-name" class="stat-val">-</span></div>
+        <div class="stat-item"><span class="stat-label">الذهب</span><span id="p-gold" class="stat-val">0</span></div>
+        <div class="stat-item"><span class="stat-label">الانتصارات</span><span id="p-wins" class="stat-val">0</span></div>
+        <div class="stat-item"><span class="stat-label">المستوى</span><span id="p-lvl" class="stat-val">1</span></div>
     </div>
 
-    <div class="story-area" id="log-text">تم اختراق الحماية.. أهلاً بك في المحرك.</div>
-
-    <div class="menu-grid">
-        <button onclick="Engine.mine()">⛏️ استخراج طاقة (+500💰)</button>
-        <button onclick="UI.showShop()">🛒 مخزن الـ 100 قصة</button>
-        <button onclick="Auth.logout()">🚪 تسجيل الخروج</button>
-    </div>
-
-    <div id="shop-container" class="hidden" style="margin-top:20px; max-height: 300px; overflow-y: auto;">
+    <div class="main-content">
+        <div id="screen-home" class="screen active">
+            <div class="story-engine" id="log">أهلاً بك في المحرك.. العالم ينتظر قراراتك.</div>
+            <div class="grid-list" style="margin-top:20px;">
+                <button onclick="Engine.mine()">⛏️ عمل في المنجم (+500💰)</button>
+                <button onclick="Engine.quickPlay()">⚔️ مهمة سريعة</button>
+            </div>
         </div>
+
+        <div id="screen-shop" class="screen">
+            <h3>🛒 السوق العالمي (100 قصة)</h3>
+            <div id="shop-list" class="grid-list"></div>
+        </div>
+
+        <div id="screen-leads" class="screen">
+            <h3>🏆 قائمة العشرة الأوائل (Global)</h3>
+            <table class="leaderboard" id="leads-list"></table>
+        </div>
+    </div>
+
+    <div class="nav-bar">
+        <button onclick="UI.nav('home', this)" class="active-nav">الساحة</button>
+        <button onclick="UI.nav('shop', this)">المتجر</button>
+        <button onclick="UI.nav('leads', this)">المتصدرين</button>
+        <button onclick="location.reload()">خروج</button>
+    </div>
 </div>
 
 <script>
-    // --- نظام الحماية المركزي ---
-    const Auth = {
-        isLoginMode: true,
-        // كلمة سر المطور (غيرها كما تحب)
-        adminKey: "teem2026", 
+    const Core = {
+        isReg: false,
+        adminPass: "teem2026", // كلمة مرورك يا تيم
 
-        process() {
-            const name = document.getElementById('user-name').value.trim();
-            const pass = document.getElementById('user-pass').value.trim();
-            const err = document.getElementById('auth-error');
+        auth() {
+            const n = document.getElementById('u-name').value.trim();
+            const p = document.getElementById('u-pass').value.trim();
+            if(!n || !p) return;
 
-            if(!name || !pass) {
-                err.innerText = "الرجاء ملء كافة الحقول";
-                err.classList.remove('hidden');
+            // دخول المطور
+            if(n === "المطور" && p === this.adminPass) {
+                Engine.init(n, true);
                 return;
             }
 
-            // تحقق المطور الخاص
-            if(name === "المطور" && pass === this.adminKey) {
-                this.launch(name, true);
-                return;
-            }
-
-            const db = JSON.parse(localStorage.getItem('user_db') || '{}');
-
-            if(this.isLoginMode) {
-                if(db[name] && db[name].pass === pass) {
-                    this.launch(name);
-                } else {
-                    err.innerText = "الاسم أو كلمة المرور غير صحيحة!";
-                    err.classList.remove('hidden');
-                }
+            let db = JSON.parse(localStorage.getItem('users_core') || '{}');
+            if(this.isReg) {
+                if(db[n]) return alert("الاسم موجود!");
+                db[n] = { pass: p, gold: 0, wins: 0, lvl: 1, unlocked: [1] };
+                localStorage.setItem('users_core', JSON.stringify(db));
+                alert("تم التسجيل!"); this.toggleRegister();
             } else {
-                if(db[name]) {
-                    err.innerText = "هذا الاسم موجود مسبقاً!";
-                    err.classList.remove('hidden');
-                } else {
-                    db[name] = { pass: pass, coins: 0, wins: 0, unlocked: [1] };
-                    localStorage.setItem('user_db', JSON.stringify(db));
-                    alert("تم التسجيل بنجاح! يمكنك الدخول الآن.");
-                    this.toggleMode();
-                }
+                if(db[n] && db[n].pass === p) Engine.init(n, false, db[n]);
+                else alert("خطأ في البيانات!");
             }
         },
-
-        launch(name, isAdmin = false) {
-            document.getElementById('auth-box').classList.add('hidden');
-            document.getElementById('main-game').style.display = 'block';
-            Engine.start(name, isAdmin);
-        },
-
-        toggleMode() {
-            this.isLoginMode = !this.isLoginMode;
-            document.getElementById('auth-title').innerText = this.isLoginMode ? "قم بتسجيل الدخول للوصول للمحرك" : "إنشاء حساب جديد في النظام";
-            document.getElementById('toggle-link').innerText = this.isLoginMode ? "ليس لديك حساب؟ سجل الآن" : "لديك حساب بالفعل؟ دخول";
-        },
-
-        logout() { location.reload(); }
+        toggleRegister() {
+            this.isReg = !this.isReg;
+            document.querySelector('#auth-screen h1').innerText = this.isReg ? "تسجيل جديد" : "CORE ENGINE";
+        }
     };
 
-    // --- محرك اللعبة الفعلي ---
     const Engine = {
-        user: {},
-        isAdmin: false,
-
-        start(name, isAdmin) {
-            this.isAdmin = isAdmin;
-            if(isAdmin) {
-                this.user = { name: "تيم (المطور)", coins: 99999999, wins: 10000, unlocked: Array.from({length:100},(_,i)=>i+1) };
-                document.getElementById('s-name').classList.add('admin-glow');
-            } else {
-                const db = JSON.parse(localStorage.getItem('user_db'));
-                this.user = { name: name, ...db[name] };
-            }
+        p: {}, isDev: false,
+        init(name, dev, data) {
+            this.isDev = dev;
+            if(dev) this.p = { name: "تيم (المطور)", gold: 9999999, wins: 8888, lvl: 99, unlocked: Array.from({length:100},(_,i)=>i+1) };
+            else this.p = { name, ...data };
+            
+            document.getElementById('auth-screen').style.display = 'none';
             this.update();
         },
-
-        mine() {
-            this.user.coins += 500;
-            document.getElementById('log-text').innerText = "تم شحن رصيدك بـ 500 عملة رقمية أسطورية.";
-            this.update();
-            this.save();
-        },
-
-        buy(id) {
-            const price = id * 1000;
-            if(this.user.coins >= price) {
-                this.user.coins -= price;
-                this.user.unlocked.push(id);
-                this.update();
-                this.save();
-                alert("تم فتح القصة رقم " + id);
-            }
-        },
-
-        play(id) {
-            const events = ["واجهت تنين الكود", "تسللت لمقرات العدو", "كسرت تشفير الخزنة", "دمرت جدار الحماية"];
-            const res = events[Math.floor(Math.random()*events.length)];
-            const prize = id * 1500;
-            this.user.coins += prize;
-            this.user.wins += 1;
-            document.getElementById('log-text').innerText = `في المهمة ${id}: ${res}. حصلت على مكافأة ${prize}💰 وفوز جديد!`;
-            this.update();
-            this.save();
-        },
-
         update() {
-            document.getElementById('s-name').innerText = this.user.name;
-            document.getElementById('s-gold').innerText = this.user.coins.toLocaleString();
-            document.getElementById('s-wins').innerText = this.user.wins;
-            UI.renderShop();
-        },
-
-        save() {
-            if(this.isAdmin) return;
-            const db = JSON.parse(localStorage.getItem('user_db'));
-            db[this.user.name] = { pass: this.user.pass, coins: this.user.coins, wins: this.user.wins, unlocked: this.user.unlocked };
-            localStorage.setItem('user_db', JSON.stringify(db));
-        }
-    };
-
-    const UI = {
-        renderShop() {
-            const cont = document.getElementById('shop-container');
-            cont.innerHTML = "";
-            for(let i=1; i<=100; i++) {
-                const owned = Engine.user.unlocked.includes(i);
-                const d = document.createElement('div');
-                d.style = "display:flex; justify-content:space-between; padding:10px; background:#0d1117; margin-bottom:5px; border-radius:5px;";
-                d.innerHTML = `<span>المهمة #${i} (${i*1000}💰)</span>
-                               <button onclick="${owned ? 'Engine.play('+i+')' : 'Engine.buy('+i+')'}" style="width:100px; padding:5px; margin:0;">${owned ? 'لعب' : 'شراء'}</button>`;
-                cont.appendChild(d);
-            }
-        },
-        showShop() {
-            document.getElementById('shop-container').classList.toggle('hidden');
-        }
-    };
-
-    // Particles
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    let p = [];
-    for(let i=0; i<50; i++) p.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, vy:Math.random()*1+0.5});
-    function draw() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        ctx.fillStyle = "rgba(255, 204, 0, 0.1)";
-        p.forEach(i => {
-            i.y += i.vy; if(i.y > canvas.height) i.y = 0;
-            ctx.beginPath(); ctx.arc(i.x, i.y, 2, 0, Math.PI*2); ctx.fill();
-        });
-        requestAnimationFrame(draw);
-    }
-    draw();
-</script>
-</body>
-</html>
+            document.getElementById('p-name').innerText = this.p.name;
+            document
