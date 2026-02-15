@@ -1,1 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>مفترق الطرق: الأسطورة اللانهائية</title>
+    <style>
+        :root { --gold: #edba11; --bg: #0b0e14; --card: #1a1f29; --text: #e2e8f0; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        #game-container { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); box-shadow: 0 10px 40px rgba(0,0,0,0.9); width: 100%; max-width: 700px; text-align: center; }
+        .stats-bar { display: flex; justify-content: space-between; margin-bottom: 20px; color: var(--gold); font-weight: bold; font-size: 0.9rem; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; }
+        .leaderboard { background: #000; padding: 10px; border-radius: 10px; margin-top: 20px; text-align: right; font-size: 0.8rem; border: 1px solid #334155; }
+        #text { font-size: 1.2rem; margin: 25px 0; line-height: 1.8; min-height: 80px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { background: #242c3d; color: white; border: 1px solid var(--gold); padding: 12px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-family: 'Cairo'; }
+        button:hover:not(:disabled) { background: var(--gold); color: black; transform: scale(1.02); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; border-color: #444; }
+        input { padding: 12px; border-radius: 8px; border: 1px solid var(--gold); background: #000; color: white; width: 80%; margin-bottom: 15px; text-align: center; }
+        .admin { color: #00ffcc; text-shadow: 0 0 5px #00ffcc; }
+        .hidden { display: none; }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
 
+<div id="game-container">
+    <div id="login-screen">
+        <h1>🌌 مفترق الطرق</h1>
+        <p>أدخل اسمك لتبدأ مغامرة لا تنتهي</p>
+        <input type="text" id="username" placeholder="اسم البطل...">
+        <button style="width: 85%" onclick="login()">دخول العالم</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        <div class="stats-bar">
+            <span>👤: <span id="p-name"></span> <span id="p-badge"></span></span>
+            <span>💰: <span id="p-coins">0</span></span>
+            <span>🏆 فوز: <span id="p-wins">0</span></span>
+        </div>
+        
+        <div id="text"></div>
+        <div id="options" class="btn-grid"></div>
+
+        <div class="leaderboard">
+            <strong>🏆 قائمة الأساطير (الأكثر فوزاً):</strong>
+            <div id="leader-list">
+                1. تيم (المطور) - 9999 فوز<br>
+                2. خالد - 45 فوز<br>
+                3. سارة - 32 فوز
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let player = { name: "", coins: 0, wins: 0, unlocked: ['story1'] };
+    
+    const stories = {
+        'story1': { name: "البداية", price: 0 },
+        'story2': { name: "كهف الجليد", price: 50 },
+        'story3': { name: "مدينة النحاس", price: 100 },
+        'story4': { name: "غابة الأرواح", price: 200 },
+        'story5': { name: "قصر السراب", price: 400 },
+        'story6': { name: "بوابة الجحيم", price: 800 },
+        'story7': { name: "وادي العمالقة", price: 1500 },
+        'story8': { name: "جزيرة القراصنة", price: 3000 },
+        'story9': { name: "مجرة المفقودين", price: 6000 },
+        'story10': { name: "عرش الخلود", price: 15000 }
+    };
+
+    function login() {
+        const name = document.getElementById('username').value.trim();
+        if(!name) return;
+        
+        player.name = name;
+        if(name === "تيم" || name.toLowerCase() === "teem") {
+            player.coins = 1000000;
+            player.wins = 9999;
+            player.unlocked = Object.keys(stories);
+            document.getElementById('p-badge').innerHTML = "<span class='admin'>[أدمن]</span>";
+        }
+        
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('p-name').innerText = name;
+        updateUI();
+        showNode(1);
+    }
+
+    function updateUI() {
+        document.getElementById('p-coins').innerText = player.coins;
+        document.getElementById('p-wins').innerText = player.wins;
+    }
+
+    function showNode(id) {
+        const node = nodes.find(n => n.id === id);
+        document.getElementById('text').innerText = node.text;
+        const optDiv = document.getElementById('options');
+        optDiv.innerHTML = "";
+
+        node.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text;
+            
+            // نظام البيع والشراء والقصص
+            if(opt.require) {
+                if(!player.unlocked.includes(opt.require)) {
+                    btn.innerText += ` (مقفلة: ${stories[opt.require].price}💰)`;
+                    if(player.coins < stories[opt.require].price) btn.disabled = true;
+                    btn.onclick = () => buyStory(opt.require, id);
+                } else {
+                    btn.onclick = () => { if(opt.win) player.wins++; updateUI(); showNode(opt.next); };
+                }
+            } else {
+                btn.onclick = () => {
+                    if(opt.add) player.coins += opt.add;
+                    updateUI();
+                    showNode(opt.next);
+                };
+            }
+            optDiv.appendChild(btn);
+        });
+    }
+
+    function buyStory(storyId, currentNode) {
+        player.coins -= stories[storyId].price;
+        player.unlocked.push(storyId);
+        updateUI();
+        showNode(currentNode);
+        alert(`تم فتح قصة: ${stories[storyId].name}`);
+    }
+
+    const nodes = [
+        {
+            id: 1,
+            text: "أنت في المركز الرئيسي للمغامرات. اجمع المال لفتح أساطير جديدة!",
+            options: [
+                { text: "العمل في المنجم (+20💰)", add: 20, next: 1 },
+                { text: "دخول كهف الجليد", require: "story2", next: 2 },
+                { text: "دخول مدينة النحاس", require: "story3", next: 3 },
+                { text: "دخول غابة الأرواح", require: "story4", next: 4 }
+            ]
+        },
+        {
+            id: 2,
+            text: "البرد شديد هنا.. تجد تمثالاً جليدياً يمسك جوهرة!",
+            options: [
+                { text: "أخذ الجوهرة (+100💰)", add: 100, win: true, next: 1 },
+                { text: "الهروب من البرد", next: 1 }
+            ]
+        },
+        {
+            id: 3,
+            text: "المدينة مليئة بالذهب الزائف. احذر من الفخاخ!",
+            options: [
+                { text: "سرقة الصندوق الكبيير (+500💰)", add: 500, win: true, next: 1 },
+                { text: "دخول قصر السراب", require: "story5", next: 5 }
+            ]
+        },
+        // أضف هنا بقية العقد (Nodes) للقصص العشر بنفس النمط..
+        {
+            id: 5,
+            text: "داخل قصر السراب.. لا شيء كما يبدو. هل تتقدم؟ ...........",
+            options: [{ text: "نهاية غامضة والعودة بكنز (+1000💰)", add: 1000, win: true, next: 1 }]
+        }
+    ];
+</script>
+</body>
+</html>
