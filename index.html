@@ -2,44 +2,36 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>LEGEND OS v1000 | THE ULTIMATE ENGINE</title>
+    <title>LEGEND OS v1000 | حماية مطلقة 🛡️</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
         :root { --gold: #ffcc00; --dark: #050608; --panel: #10141b; --glow: 0 0 15px rgba(255, 204, 0, 0.4); }
         
-        body { font-family: 'Cairo', sans-serif; background: var(--dark); color: #e0e0e0; margin: 0; overflow-x: hidden; }
-        .app-container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        body { font-family: 'Cairo', sans-serif; background: var(--dark); color: #e0e0e0; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 800px; padding: 20px; }
         
-        /* شاشة الدخول الاحترافية */
-        .glass-card { background: var(--panel); border: 1px solid #2d333b; border-radius: 20px; padding: 40px; box-shadow: var(--glow); text-align: center; animation: fadeIn 0.8s ease; }
+        /* شاشة الحماية - تظهر أولاً دائماً */
+        #auth-view { background: var(--panel); border: 1px solid #2d333b; border-radius: 20px; padding: 40px; box-shadow: var(--glow); text-align: center; width: 100%; box-sizing: border-box; }
         input { width: 90%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #edba11; color: #fff; border-radius: 10px; font-size: 1.1rem; text-align: center; }
         
-        /* الأزرار */
+        /* إخفاء اللعبة تماماً */
+        #game-view { display: none; width: 100%; }
+
         button { padding: 12px 30px; background: linear-gradient(45deg, #edba11, #b8860b); border: none; border-radius: 10px; color: #000; font-weight: 900; cursor: pointer; transition: 0.3s; margin: 5px; font-family: 'Cairo'; }
         button:hover { transform: translateY(-3px); box-shadow: 0 5px 20px rgba(237, 186, 17, 0.5); }
-        button:active { transform: scale(0.95); }
 
-        /* واجهة اللعبة */
-        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px; }
         .stat-box { background: #000; border-bottom: 3px solid var(--gold); padding: 15px; border-radius: 12px; text-align: center; }
-        .label { font-size: 0.8rem; color: #888; display: block; }
-        .value { font-size: 1.3rem; font-weight: 900; color: var(--gold); }
+        .value { font-size: 1.2rem; font-weight: 900; color: var(--gold); }
 
-        /* محرك القصة */
-        .story-display { background: #0a0c10; border-right: 5px solid var(--gold); padding: 25px; border-radius: 15px; margin: 20px 0; min-height: 100px; font-size: 1.2rem; line-height: 1.8; position: relative; }
+        .story-display { background: #0a0c10; border-right: 5px solid var(--gold); padding: 25px; border-radius: 15px; margin: 20px 0; min-height: 80px; font-size: 1.1rem; line-height: 1.6; }
         
-        /* المتجر */
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 500px; overflow-y: auto; padding: 10px; }
-        .item-card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 15px; text-align: right; }
-        .item-card.owned { border-color: #238636; background: #0d1117; }
-
-        /* أنيميشن */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .shake { animation: shake 0.5s; }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 20% { transform: translate(-3px, 0px); } 40% { transform: translate(3px, 2px); } 100% { transform: translate(0,0); } }
-
-        .dev-tag { background: linear-gradient(90deg, #ff0000, #ffcc00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: dev-glow 1s infinite alternate; }
-        @keyframes dev-glow { from { filter: drop-shadow(0 0 2px #ffcc00); } to { filter: drop-shadow(0 0 10px #ff0000); } }
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 400px; overflow-y: auto; padding: 10px; }
+        .item-card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 15px; }
+        .owned { border-color: #238636; }
+        
+        .dev-tag { background: linear-gradient(90deg, #ff0000, #ffcc00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -48,81 +40,79 @@
     <audio id="snd-win" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
 
     <div class="app-container">
-        <div id="auth-view" class="glass-card">
-            <h1 style="color: var(--gold); font-size: 3rem; margin: 0;">LEGEND v1000</h1>
-            <p>نظام تشغيل الأساطير المركزي</p>
+        <div id="auth-view">
+            <h1 style="color: var(--gold); font-size: 2.5rem; margin: 0;">LEGEND OS</h1>
+            <p>نظام التشفير المركزي - الدخول مطلوب</p>
             <input type="text" id="username" placeholder="اسم المستخدم">
             <input type="password" id="password" placeholder="كلمة المرور">
             <div style="margin-top: 20px;">
-                <button onclick="Engine.login()">دخول النظام</button>
-                <button onclick="Engine.register()" style="background: #21262d; color: #fff;">إنشاء حساب</button>
+                <button onclick="Engine.login()">دخول</button>
+                <button onclick="Engine.register()" style="background: #21262d; color: #fff;">تسجيل حساب</button>
             </div>
-            <p id="auth-msg" style="margin-top: 15px;"></p>
+            <p id="auth-msg" style="margin-top: 15px; font-weight: bold;"></p>
         </div>
 
-        <div id="game-view" class="hidden">
+        <div id="game-view">
             <div class="dashboard">
-                <div class="stat-box"><span class="label">البطل</span><span id="p-name" class="value">-</span></div>
-                <div class="stat-box"><span class="label">خزنة الذهب</span><span id="p-gold" class="value">0</span></div>
-                <div class="stat-box"><span class="label">الانتصارات</span><span id="p-wins" class="value">0</span></div>
-                <div class="stat-box"><span class="label">الرتبة</span><span id="p-rank" class="value">مبتدئ</span></div>
+                <div class="stat-box"><span>البطل</span><br><span id="p-name" class="value">-</span></div>
+                <div class="stat-box"><span>الذهب</span><br><span id="p-gold" class="value">0</span></div>
+                <div class="stat-box"><span>الفوز</span><br><span id="p-wins" class="value">0</span></div>
+                <div class="stat-box"><span>الرتبة</span><br><span id="p-rank" class="value">مبتدئ</span></div>
             </div>
 
-            <div id="main-screen" class="glass-card" style="padding: 20px;">
-                <div class="story-display" id="story-log">جاري استدعاء المحرك... تم الاتصال بالقاعدة.</div>
+            <div id="main-screen" style="background: var(--panel); padding: 20px; border-radius: 20px; border: 1px solid #2d333b;">
+                <div class="story-display" id="story-log">تم تسجيل الدخول بنجاح.. المحرك يعمل.</div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <button onclick="Engine.mine()">⛏️ استخراج طاقة (+1000💰)</button>
-                    <button onclick="UI.showTab('shop')">🛒 المتجر (100 قصة)</button>
+                    <button onclick="Engine.mine()">⛏️ جمع ذهب (+1000💰)</button>
+                    <button onclick="UI.showTab('shop')">🛒 المتجر</button>
                     <button onclick="UI.showTab('leads')">🏆 المتصدرين</button>
-                    <button onclick="Engine.save()" style="background: #238636; color: white;">💾 حفظ يدوي</button>
+                    <button onclick="location.reload()" style="background: #8b0000; color: white;">🚪 خروج</button>
                 </div>
             </div>
 
-            <div id="shop-tab" class="hidden glass-card">
-                <h2 style="color: var(--gold)">🛒 متجر القصص العالمي</h2>
+            <div id="shop-tab" class="hidden" style="background: var(--panel); padding: 20px; border-radius: 20px;">
+                <h2 style="color: var(--gold)">🛒 المتجر الملكي (100 قصة)</h2>
                 <div class="shop-grid" id="shop-items"></div>
-                <button onclick="UI.showTab('main')" style="width: 100%; margin-top: 20px;">🔙 العودة للساحة</button>
+                <button onclick="UI.showTab('main')" style="width: 100%; margin-top: 15px;">🔙 عودة</button>
             </div>
 
-            <div id="leads-tab" class="hidden glass-card">
-                <h2 style="color: var(--gold)">🏆 أساطير السيرفر v1000</h2>
-                <div id="leaderboard-list" style="text-align: right; font-size: 1.2rem;"></div>
-                <button onclick="UI.showTab('main')" style="width: 100%; margin-top: 20px;">🔙 العودة للساحة</button>
+            <div id="leads-tab" class="hidden" style="background: var(--panel); padding: 20px; border-radius: 20px;">
+                <h2 style="color: var(--gold)">🏆 قائمة الأساطير</h2>
+                <div id="leaderboard-list" style="text-align: right; line-height: 2;"></div>
+                <button onclick="UI.showTab('main')" style="width: 100%; margin-top: 15px;">🔙 عودة</button>
             </div>
         </div>
     </div>
 
 <script>
     const Engine = {
-        p: { name: "", pass: "", gold: 0, wins: 0, unlocked: [1], rank: "مبتدئ" },
+        p: { name: "", pass: "", gold: 0, wins: 0, unlocked: [1] },
 
         register() {
             const u = document.getElementById('username').value.trim();
             const ps = document.getElementById('password').value.trim();
-            if(!u || !ps) return this.msg("⚠️ املأ البيانات!");
-            
-            if(localStorage.getItem('v1000_'+u)) return this.msg("❌ الاسم موجود!");
+            if(!u || !ps) return this.msg("⚠️ أدخل البيانات أولاً!");
+            if(localStorage.getItem('v1000_'+u)) return this.msg("❌ الاسم مستخدم!");
             
             localStorage.setItem('v1000_'+u, JSON.stringify({name:u, pass:ps, gold:0, wins:0, unlocked:[1]}));
-            this.msg("✅ تم الإنشاء! ادخل الآن.", "#00ffcc");
+            this.msg("✅ تم التسجيل! يمكنك الدخول.", "#00ffcc");
         },
 
         login() {
             const u = document.getElementById('username').value.trim();
             const ps = document.getElementById('password').value.trim();
 
-            // دخول المطور admin/admin
             if(u === "admin" && ps === "admin") {
-                this.p = { name: "تيم (المطور) 👑", gold: 99999999, wins: 50000, unlocked: Array.from({length:101},(_,i)=>i), rank: "خالق النظام" };
-                return this.launch();
+                this.p = { name: "تيم (المطور) 👑", gold: 999999, wins: 5000, unlocked: Array.from({length:101},(_,i)=>i) };
+                this.launch(); return;
             }
 
             const data = localStorage.getItem('v1000_'+u);
             if(data) {
                 const saved = JSON.parse(data);
                 if(saved.pass === ps) { this.p = saved; this.launch(); }
-                else this.msg("❌ كلمة سر خاطئة!");
-            } else this.msg("❌ المستخدم غير موجود!");
+                else this.msg("❌ كلمة السر خطأ!");
+            } else this.msg("❌ الحساب غير موجود!");
         },
 
         msg(t, c="red") { const m=document.getElementById('auth-msg'); m.innerText=t; m.style.color=c; },
@@ -138,22 +128,14 @@
             document.getElementById('p-name').innerText = this.p.name;
             document.getElementById('p-gold').innerText = this.p.gold.toLocaleString();
             document.getElementById('p-wins').innerText = this.p.wins;
-            this.p.rank = this.getRank();
-            document.getElementById('p-rank').innerText = this.p.rank;
-            this.save();
-        },
-
-        getRank() {
-            if(this.p.wins > 1000) return "إمبراطور";
-            if(this.p.wins > 500) return "أسطورة";
-            if(this.p.wins > 100) return "جنرال";
-            return "مغامر";
+            document.getElementById('p-rank').innerText = this.p.wins > 100 ? "أسطورة" : "مغامر";
+            if(!this.p.name.includes("المطور")) localStorage.setItem('v1000_'+this.p.name, JSON.stringify(this.p));
         },
 
         mine() {
             this.p.gold += 1000;
             document.getElementById('snd-coin').play();
-            UI.typeWriter("⛏️ تم استخراج حزمة طاقة ذهبية.. (+1000 ذهب)");
+            document.getElementById('story-log').innerText = "⛏️ تم جمع 1000 قطعة ذهبية من المناجم.";
             this.update();
         },
 
@@ -163,75 +145,43 @@
                 this.p.gold -= cost;
                 this.p.unlocked.push(id);
                 document.getElementById('snd-win').play();
-                this.update();
-                UI.renderShop();
-            } else alert("❌ رصيدك منخفض جداً!");
+                this.update(); UI.renderShop();
+            } else alert("ذهبك لا يكفي!");
         },
 
         play(id) {
-            document.getElementById('game-view').classList.add('shake');
-            setTimeout(() => document.getElementById('game-view').classList.remove('shake'), 500);
             document.getElementById('snd-win').play();
-            
-            const scenarios = [
-                `اقتحمت ${id} قلاع للعدو وسيطرت على ذهبهم.`,
-                `هزمت وحش الكود في المستوى ${id} وحررت البيانات.`,
-                `وجدت ثغرة في نظام الأعداء وحصلت على كنز رقم ${id}.`
-            ];
-            const msg = scenarios[Math.floor(Math.random()*scenarios.length)];
-            UI.typeWriter(`📜 مهمة ${id}: ${msg} المكافأة: ${id*3000} ذهبة!`);
-            
-            this.p.gold += id * 3000;
+            const r = id * 3000;
+            this.p.gold += r;
             this.p.wins += 1;
-            this.update();
-            UI.showTab('main');
-        },
-
-        save() { if(!this.p.name.includes("المطور")) localStorage.setItem('v1000_'+this.p.name, JSON.stringify(this.p)); }
+            document.getElementById('story-log').innerText = `📜 المهمة ${id}: انتصرت في المعركة وحصلت على ${r}💰!`;
+            this.update(); UI.showTab('main');
+        }
     };
 
     const UI = {
         showTab(t) {
-            document.querySelectorAll('#main-screen, #shop-tab, #leads-tab').forEach(el=>el.classList.add('hidden'));
-            if(t === 'main') document.getElementById('main-screen').classList.remove('hidden');
-            if(t === 'shop') { document.getElementById('shop-tab').classList.remove('hidden'); this.renderShop(); }
-            if(t === 'leads') { document.getElementById('leads-tab').classList.remove('hidden'); this.renderLeads(); }
+            document.getElementById('main-screen').classList.add('hidden');
+            document.getElementById('shop-tab').classList.add('hidden');
+            document.getElementById('leads-tab').classList.add('hidden');
+            if(t==='main') document.getElementById('main-screen').classList.remove('hidden');
+            if(t==='shop') { document.getElementById('shop-tab').classList.remove('hidden'); this.renderShop(); }
+            if(t==='leads') { document.getElementById('leads-tab').classList.remove('hidden'); this.renderLeads(); }
         },
-
-        typeWriter(txt) {
-            const log = document.getElementById('story-log');
-            log.innerText = "";
-            let i = 0;
-            const interval = setInterval(() => {
-                log.innerText += txt[i];
-                i++;
-                if(i === txt.length) clearInterval(interval);
-            }, 20);
-        },
-
         renderShop() {
             const list = document.getElementById('shop-items');
             list.innerHTML = "";
             for(let i=1; i<=100; i++) {
                 const owned = Engine.p.unlocked.includes(i);
-                list.innerHTML += `
-                <div class="item-card ${owned?'owned':''}">
-                    <strong>مهمة أسطورية #${i}</strong><br>
-                    <small>القيمة: ${i*2000}💰</small><br><br>
-                    <button onclick="${owned?'Engine.play('+i+')':'Engine.buy('+i+')'}">${owned?'⚔️ خوض القصة':'🛒 شراء الان'}</button>
+                list.innerHTML += `<div class="item-card ${owned?'owned':''}">
+                    <b>مهمة #${i}</b><br><small>${i*2000}💰</small><br>
+                    <button onclick="${owned?'Engine.play('+i+')':'Engine.buy('+i+')'}">${owned?'لعب':'شراء'}</button>
                 </div>`;
             }
         },
-
         renderLeads() {
-            const board = document.getElementById('leaderboard-list');
-            const data = [
-                {n: "تيم (المطور) 👑", w: 999999},
-                {n: "الجنرال خالد", w: 5500},
-                {n: "سيد العوالم", w: 2300},
-                {n: Engine.p.name, w: Engine.p.wins}
-            ].sort((a,b)=>b.w-a.w);
-            board.innerHTML = data.map((l,i)=>`<div>#${i+1} - ${l.n} <span style="color:var(--gold)">(${l.w} فوز)</span></div>`).join('');
+            const data = [{n:"تيم (المطور) 👑", w:9999}, {n:Engine.p.name, w:Engine.p.wins}].sort((a,b)=>b.w-a.w);
+            document.getElementById('leaderboard-list').innerHTML = data.map((l,i)=>`#${i+1} - ${l.n} (${l.w} فوز)`).join('<br>');
         }
     };
 </script>
