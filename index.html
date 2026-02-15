@@ -2,111 +2,146 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>محرك أساطير تيم v5</title>
+    <title>محرك أساطير تيم v6 | SOUND & SECURITY</title>
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #0d1117; color: white; text-align: center; margin: 0; padding: 20px; }
-        .box { background: #161b22; border: 2px solid #edba11; border-radius: 15px; padding: 20px; max-width: 600px; margin: auto; }
-        input { padding: 10px; margin: 10px; border-radius: 5px; border: 1px solid #edba11; background: #000; color: white; width: 80%; }
-        button { padding: 10px 20px; background: #edba11; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 5px; }
+        body { font-family: 'Cairo', sans-serif; background: #05070a; color: white; text-align: center; margin: 0; padding: 20px; }
+        .box { background: #111827; border: 2px solid #edba11; border-radius: 15px; padding: 25px; max-width: 650px; margin: auto; box-shadow: 0 0 30px rgba(237, 186, 17, 0.2); }
+        input { padding: 12px; margin: 10px; border-radius: 8px; border: 1px solid #edba11; background: #000; color: white; width: 85%; font-size: 1rem; }
+        button { padding: 12px 25px; background: #edba11; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px; transition: 0.3s; }
+        button:hover { transform: scale(1.05); filter: brightness(1.2); }
         .hidden { display: none; }
-        .stat-bar { display: flex; justify-content: space-around; background: #000; padding: 10px; border-radius: 10px; margin-bottom: 20px; color: #edba11; }
-        .story-card { background: #21262d; padding: 15px; margin: 10px; border-radius: 10px; border-right: 5px solid #edba11; text-align: right; }
-        #leaderboard { text-align: right; background: #000; padding: 15px; border-radius: 10px; }
+        .stat-bar { display: flex; justify-content: space-around; background: #000; padding: 15px; border-radius: 12px; margin-bottom: 25px; border-bottom: 2px solid #edba11; }
+        .stat-bar span { font-weight: bold; color: #edba11; }
+        .story-card { background: #1f2937; padding: 15px; margin: 10px; border-radius: 12px; border-right: 5px solid #edba11; text-align: right; display: flex; justify-content: space-between; align-items: center; }
+        #leaderboard { text-align: right; background: #000; padding: 20px; border-radius: 10px; line-height: 2; border: 1px solid #edba11; }
+        .admin-txt { color: #00ffcc; text-shadow: 0 0 10px #00ffcc; font-weight: 900; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
+    <audio id="bg-music" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+    <audio id="coin-sound" src="https://assets.mixkit.co/active_storage/sfx/2017/2017-preview.mp3"></audio>
+    <audio id="win-sound" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+
     <div id="auth-screen" class="box">
-        <h1>🔐 نظام الدخول</h1>
+        <h1 style="color: #edba11; font-size: 2.5rem;">🌌 نظام أساطير تيم</h1>
+        <p>سجل دخولك أو أنشئ حساباً جديداً</p>
         <input type="text" id="user" placeholder="اسم المستخدم">
         <input type="password" id="pass" placeholder="كلمة المرور">
         <br>
-        <button onclick="login()">دخول</button>
-        <button onclick="register()" style="background: #30363d; color: white;">إنشاء حساب</button>
-        <p id="msg" style="color: red;"></p>
+        <button onclick="login()">دخول العالم</button>
+        <button onclick="register()" style="background: #374151; color: white;">إنشاء حساب جديد</button>
+        <p id="msg" style="margin-top: 10px; font-weight: bold;"></p>
     </div>
 
     <div id="game-screen" class="hidden">
         <div class="stat-bar">
             <span>👤: <span id="n"></span></span>
-            <span>💰: <span id="g">0</span></span>
-            <span>🏆: <span id="w">0</span></span>
+            <span>💰 الذهب: <span id="g">0</span></span>
+            <span>🏆 فوز: <span id="w">0</span></span>
         </div>
 
         <div id="main-menu" class="box">
-            <h2>الساحة الكبرى</h2>
-            <p id="story-text">أهلاً بك في المحرك الأقوى. اختر وجهتك:</p>
-            <button onclick="mine()">⛏️ العمل في المنجم (+500💰)</button>
-            <button onclick="showShop()">🛒 متجر الـ 100 قصة</button>
-            <button onclick="showLeads()">🏆 المتصدرين</button>
+            <h2 id="loc-name">الساحة الكبرى</h2>
+            <div id="story-text" style="background: #000; padding: 15px; border-radius: 10px; min-height: 60px; margin-bottom: 20px;">أهلاً بك يا بطل.. العالم ينتظر بطولاتك.</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="mine()">⛏️ عمل في المنجم (+500💰)</button>
+                <button onclick="showShop()">🛒 متجر الـ 100 قصة</button>
+                <button onclick="showLeads()">🏆 قائمة المتصدرين</button>
+                <button onclick="toggleMusic()" id="music-btn">🎵 تشغيل الموسيقى</button>
+            </div>
         </div>
 
         <div id="shop-screen" class="hidden">
-            <h3>🛒 المتجر الملكي</h3>
-            <div id="items-list" style="max-height: 300px; overflow-y: auto;"></div>
-            <button onclick="back()">عودة</button>
+            <h3 style="color: #edba11;">🛒 سوق المغامرات الأسطورية</h3>
+            <div id="items-list" style="max-height: 400px; overflow-y: auto; background: #000; padding: 10px; border-radius: 10px;"></div>
+            <button onclick="back()" style="width: 100%; margin-top: 15px;">🔙 عودة للساحة</button>
         </div>
 
         <div id="leads-screen" class="hidden">
-            <h3>🏆 قائمة الأساطير</h3>
+            <h3 style="color: #edba11;">🏆 أقوى 5 لاعبين في العالم</h3>
             <div id="leaderboard"></div>
-            <button onclick="back()">عودة</button>
+            <button onclick="back()" style="width: 100%; margin-top: 15px;">🔙 عودة للساحة</button>
         </div>
     </div>
 
 <script>
     let p = { name: "", pass: "", gold: 0, wins: 0, unlocked: [1] };
+    const music = document.getElementById('bg-music');
 
-    // --- نظام الدخول ---
+    // --- نظام الحسابات ---
     function register() {
-        const u = document.getElementById('user').value;
-        const pass = document.getElementById('pass').value;
-        if (u && pass) {
-            localStorage.setItem('user_' + u, JSON.stringify({ name: u, pass: pass, gold: 0, wins: 0, unlocked: [1] }));
-            document.getElementById('msg').innerText = "تم التسجيل! اضغط دخول الآن.";
-            document.getElementById('msg').style.color = "green";
+        const u = document.getElementById('user').value.trim();
+        const ps = document.getElementById('pass').value.trim();
+        const msg = document.getElementById('msg');
+        
+        if (!u || !ps) {
+            msg.innerText = "⚠️ أدخل الاسم وكلمة المرور!";
+            msg.style.color = "orange";
+            return;
+        }
+
+        if (localStorage.getItem('teem_user_' + u)) {
+            msg.innerText = "❌ هذا الاسم موجود بالفعل!";
+            msg.style.color = "red";
+        } else {
+            const newUser = { name: u, pass: ps, gold: 0, wins: 0, unlocked: [1] };
+            localStorage.setItem('teem_user_' + u, JSON.stringify(newUser));
+            msg.innerText = "✅ تم إنشاء الحساب! يمكنك الدخول الآن.";
+            msg.style.color = "#00ffcc";
         }
     }
 
     function login() {
-        const u = document.getElementById('user').value;
-        const pass = document.getElementById('pass').value;
+        const u = document.getElementById('user').value.trim();
+        const ps = document.getElementById('pass').value.trim();
+        const msg = document.getElementById('msg');
 
-        // ميزة المطور
-        if (u === "admin" && pass === "admin") {
-            p = { name: "تيم (المطور) 👑", gold: 999999, wins: 9999, unlocked: Array.from({length: 101}, (_, i) => i) };
+        // دخول المطور admin/admin
+        if (u === "admin" && ps === "admin") {
+            p = { name: "تيم (المطور) 👑", gold: 9999999, wins: 8888, unlocked: Array.from({length: 101}, (_, i) => i) };
             start();
             return;
         }
 
-        const data = localStorage.getItem('user_' + u);
+        const data = localStorage.getItem('teem_user_' + u);
         if (data) {
             const saved = JSON.parse(data);
-            if (saved.pass === pass) { p = saved; start(); } 
-            else { document.getElementById('msg').innerText = "كلمة المرور خطأ!"; }
+            if (saved.pass === ps) { 
+                p = saved; 
+                start(); 
+            } else { 
+                msg.innerText = "❌ كلمة المرور خاطئة!";
+                msg.style.color = "red";
+            }
         } else {
-            document.getElementById('msg').innerText = "الحساب غير موجود!";
+            msg.innerText = "❌ هذا المستخدم غير مسجل!";
+            msg.style.color = "red";
         }
     }
 
     function start() {
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('game-screen').classList.remove('hidden');
+        if (p.name.includes("المطور")) document.getElementById('n').classList.add('admin-txt');
         update();
     }
 
-    // --- المحرك ---
+    // --- محرك اللعبة ---
     function update() {
         document.getElementById('n').innerText = p.name;
-        document.getElementById('g').innerText = p.gold;
+        document.getElementById('g').innerText = p.gold.toLocaleString();
         document.getElementById('w').innerText = p.wins;
-        if(p.name !== "تيم (المطور) 👑") localStorage.setItem('user_' + p.name, JSON.stringify(p));
+        if (!p.name.includes("المطور")) {
+            localStorage.setItem('teem_user_' + p.name, JSON.stringify(p));
+        }
     }
 
     function mine() {
         p.gold += 500;
-        document.getElementById('story-text').innerText = "أحسنت! لقد عملت بجد وجمعت 500 قطعة ذهبية.";
+        document.getElementById('coin-sound').play();
+        document.getElementById('story-text').innerText = "⛏️ لقد عملت بجد في المناجم وحصلت على 500 ذهبة!";
         update();
     }
 
@@ -116,11 +151,11 @@
         const list = document.getElementById('items-list');
         list.innerHTML = "";
         for (let i = 1; i <= 100; i++) {
-            const cost = i * 1000;
+            const cost = i * 1500;
             const isOwned = p.unlocked.includes(i);
             list.innerHTML += `<div class="story-card">
-                <b>قصة #${i}</b> - السعر: ${cost}💰
-                <button onclick="${isOwned ? 'play('+i+')' : 'buy('+i+','+cost+')'}">${isOwned ? 'لعب القصة' : 'شراء'}</button>
+                <div><b>المهمة #${i}</b><br><small>السعر: ${cost}💰</small></div>
+                <button onclick="${isOwned ? 'play('+i+')' : 'buy('+i+','+cost+')'}">${isOwned ? '⚔️ ابدأ' : '🛒 شراء'}</button>
             </div>`;
         }
     }
@@ -129,13 +164,17 @@
         if (p.gold >= cost) {
             p.gold -= cost;
             p.unlocked.push(id);
+            document.getElementById('win-sound').play();
             update(); showShop();
-        } else { alert("ذهبك لا يكفي!"); }
+        } else { alert("❌ ذهبك لا يكفي لهذه المغامرة!"); }
     }
 
     function play(id) {
-        document.getElementById('story-text').innerHTML = `<b>حدث القصة ${id}:</b><br>لقد سافرت إلى وادي الظلال، وقاتلت وحشاً أسطورياً وانتصرت عليه بذكائك! حصلت على مكافأة قدرها ${id*500} ذهبة.`;
-        p.gold += id * 500;
+        document.getElementById('win-sound').play();
+        const events = ["واجهت تنيناً عملاقاً", "اكتشفت كنزاً مدفوناً", "أنقذت قرية من الغزاة", "هزمت جيش الموتى"];
+        const ev = events[Math.floor(Math.random()*events.length)];
+        document.getElementById('story-text').innerHTML = `<b>📜 أحداث المهمة ${id}:</b><br>${ev} في وادي الأساطير. انتصرت وحصلت على ${id*1000} ذهبة وفوز جديد!`;
+        p.gold += id * 1000;
         p.wins += 1;
         update();
         back();
@@ -145,13 +184,30 @@
         document.getElementById('main-menu').classList.add('hidden');
         document.getElementById('leads-screen').classList.remove('hidden');
         const board = document.getElementById('leaderboard');
-        board.innerHTML = `1. تيم (المطور) - 9999 فوز<br>2. صقر العرب - 500 فوز<br>3. ${p.name} - ${p.wins} فوز`;
+        const fake = [
+            {n: "تيم (المطور) 👑", w: 9999},
+            {n: "بطل العرب", w: 1200},
+            {n: "محارب الظل", w: 850},
+            {n: p.name, w: p.wins}
+        ].sort((a,b) => b.w - a.w);
+        
+        board.innerHTML = fake.map((l, i) => `#${i+1} - ${l.n} : ${l.w} فوز`).join('<br>');
     }
 
     function back() {
         document.getElementById('shop-screen').classList.add('hidden');
         document.getElementById('leads-screen').classList.add('hidden');
         document.getElementById('main-menu').classList.remove('hidden');
+    }
+
+    function toggleMusic() {
+        if (music.paused) {
+            music.play();
+            document.getElementById('music-btn').innerText = "⏸️ إيقاف الموسيقى";
+        } else {
+            music.pause();
+            document.getElementById('music-btn').innerText = "🎵 تشغيل الموسيقى";
+        }
     }
 </script>
 </body>
