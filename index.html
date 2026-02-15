@@ -3,22 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مفترق الطرق | النسخة السرية</title>
+    <title>أساطير مفترق الطرق | النسخة الأسطورية</title>
     <style>
-        :root { --gold: #edba11; --bg: #05070a; --card: #111827; --text: #f3f4f6; }
-        body { font-family: 'Cairo', sans-serif; background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 10px; }
-        #game-container { background: var(--card); padding: 25px; border-radius: 15px; border: 2px solid var(--gold); box-shadow: 0 0 50px rgba(237, 186, 17, 0.2); width: 100%; max-width: 800px; text-align: center; }
-        .header { display: flex; justify-content: space-between; background: #1f2937; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-bottom: 3px solid var(--gold); }
-        .screen { display: none; }
+        :root { --gold: #c5a021; --gold-light: #f3cf5f; --bg: #05070a; --card: #111827; --text: #f3f4f6; }
+        body { font-family: 'Cairo', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        #game-container { width: 100%; max-width: 800px; background: var(--card); border-left: 2px solid var(--gold); border-right: 2px solid var(--gold); padding: 20px; box-shadow: 0 0 50px rgba(0,0,0,1); }
+        
+        /* Stats Header */
+        .header { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: #1f2937; padding: 15px; border-radius: 12px; border-bottom: 4px solid var(--gold); margin-bottom: 20px; }
+        .stat-box { text-align: center; border-right: 1px solid #374151; }
+        .stat-box:last-child { border-right: none; }
+        .stat-val { display: block; color: var(--gold-light); font-weight: bold; font-size: 1.2rem; }
+
+        /* Screens */
+        .screen { display: none; animation: fadeIn 0.5s; }
         .active { display: block; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-height: 400px; overflow-y: auto; padding: 5px; }
-        button { background: #374151; color: white; border: 1px solid var(--gold); padding: 12px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; transition: 0.2s; }
-        button:hover:not(:disabled) { background: var(--gold); color: black; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Buttons & Inputs */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        button { background: linear-gradient(145deg, #1f2937, #111827); color: white; border: 1px solid var(--gold); padding: 15px; border-radius: 10px; cursor: pointer; font-family: 'Cairo'; font-weight: bold; transition: 0.3s; }
+        button:hover:not(:disabled) { background: var(--gold); color: black; box-shadow: 0 0 15px var(--gold); }
         button:disabled { opacity: 0.3; cursor: not-allowed; }
-        .shop-item { background: #111827; border: 1px solid #374151; padding: 10px; margin: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-        .admin-txt { color: #00ffcc; font-weight: bold; text-shadow: 0 0 10px #00ffcc; }
-        input { padding: 15px; width: 70%; border-radius: 10px; border: 1px solid var(--gold); background: #000; color: #fff; margin-bottom: 15px; text-align: center; }
-        .hidden { display: none; }
+        input { width: 80%; padding: 15px; background: #000; border: 1px solid var(--gold); color: white; border-radius: 10px; text-align: center; font-size: 1.2rem; }
+
+        /* Leaderboard */
+        .leaderboard { margin-top: 30px; background: #000; padding: 15px; border-radius: 10px; border: 1px solid var(--gold); }
+        .leader-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; }
+        .rank-1 { color: var(--gold-light); font-weight: bold; }
+
+        /* Shop & Stories */
+        .list-container { max-height: 400px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.5); border-radius: 10px; }
+        .item-card { background: #1f2937; margin-bottom: 10px; padding: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-right: 5px solid var(--gold); }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -26,128 +42,168 @@
 
 <div id="game-container">
     <div id="login-screen" class="screen active">
-        <h1 style="color: var(--gold)">🌌 بوابة الأساطير</h1>
-        <p>اكتب اسمك للبدء (كلمة السر للمطور فقط)</p>
-        <input type="text" id="username" placeholder="اكتب اسمك هنا...">
-        <button onclick="login()" style="width: 75%">دخول العالم</button>
+        <h1 style="color: var(--gold); font-size: 2.5rem;">⚔️ أساطير الـ 100 قصة</h1>
+        <p>مرحباً بك في المحرك الأقوى للمغامرات</p>
+        <input type="text" id="username" placeholder="اكتب اسمك أو كلمة السر...">
+        <div style="margin-top: 20px;">
+            <button onclick="login()" style="width: 85%;">بدء المغامرة</button>
+        </div>
     </div>
 
     <div id="game-screen" class="screen">
         <div class="header">
-            <div>👤 <span id="p-name"></span> <span id="p-badge"></span></div>
-            <div>💰 <span id="p-coins">0</span></div>
-            <div>🏆 <span id="p-wins">0</span></div>
+            <div class="stat-box"><span>البطل</span><span class="stat-val" id="p-name">---</span></div>
+            <div class="stat-box"><span>الذهب</span><span class="stat-val" id="p-coins">0</span></div>
+            <div class="stat-box"><span>الانتصارات</span><span class="stat-val" id="p-wins">0</span></div>
         </div>
 
-        <div id="main-nav">
-            <h2 id="loc-title">الساحة المركزية</h2>
-            <p id="game-text">أهلاً بك.. اجمع المال لتفتح الـ 100 قصة الأسطورية!</p>
+        <div id="main-menu">
+            <div style="background: #111; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                <h3 id="story-title">الساحة الملكية</h3>
+                <p id="story-text">أنت الآن في قلب العاصمة.. العالم ينتظر بطولاتك.</p>
+            </div>
             <div class="btn-grid">
-                <button onclick="mine()">⛏️ العمل في المنجم (+100💰)</button>
-                <button onclick="showShop()">🛒 متجر الـ 100 قصة</button>
-                <button onclick="showStories()">📜 العب القصص المفتوحة</button>
+                <button onclick="mineGold()">⛏️ العمل الشاق (+150💰)</button>
+                <button onclick="switchScreen('shop-screen')">🛒 متجر الـ 100 قصة</button>
+                <button onclick="switchScreen('story-screen')">📖 خوض مغامرة</button>
+                <button onclick="saveGame()">💾 حفظ التقدم</button>
             </div>
         </div>
 
-        <div id="shop-view" class="hidden">
-            <h3>🛒 المتجر الملكي</h3>
-            <div id="shop-items" style="max-height: 350px; overflow-y: auto;"></div>
-            <button onclick="backToMain()" style="width:100%; margin-top:10px;">🔙 عودة</button>
+        <div id="shop-screen" class="screen">
+            <h2>🛒 متجر العوالم</h2>
+            <div class="list-container" id="shop-list"></div>
+            <button onclick="switchScreen('main-menu')" style="width: 100%; margin-top: 15px;">🔙 عودة للساحة</button>
         </div>
 
-        <div id="stories-view" class="hidden">
-            <h3>📜 اختر قصة لتبدأها</h3>
-            <div id="story-list" class="btn-grid"></div>
-            <button onclick="backToMain()" style="width:100%; margin-top:10px;">🔙 عودة</button>
+        <div id="story-screen" class="screen">
+            <h2>📖 المغامرات المفتوحة</h2>
+            <div class="list-container" id="unlocked-list"></div>
+            <button onclick="switchScreen('main-menu')" style="width: 100%; margin-top: 15px;">🔙 عودة للساحة</button>
+        </div>
+
+        <div class="leaderboard">
+            <h4>🏆 قائمة أقوى 5 أساطير</h4>
+            <div id="leader-items">
+                <div class="leader-item rank-1"><span>1. المطور 👑</span><span>999,999 🏆</span></div>
+                <div class="leader-item"><span>2. صقر العرب</span><span>450 🏆</span></div>
+                <div class="leader-item"><span>3. محارب الليل</span><span>310 🏆</span></div>
+                <div class="leader-item"><span>4. بطل الظل</span><span>120 🏆</span></div>
+                <div class="leader-item"><span>5. لاعب جديد</span><span>5 🏆</span></div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    // نظام البيانات
     let player = { name: "", coins: 0, wins: 0, unlocked: [1] };
     
-    // كلمة السر الخاصة بك هي "مطور" أو "admin"
+    // محرك توليد القصص
+    const locations = ["كهف الموت", "جزيرة النار", "سرداب الملوك", "برج السحر", "غابة الأرواح", "قلعة الظل", "وادي البرق"];
+    const monsters = ["التنين الأسود", "الغول العملاق", "جيش الهياكل", "ساحر الظلام", "وحش البحر", "العنكبوت الملك"];
+    const actions = ["واجهت", "تسللت إلى", "قاتلت", "دمرت حصن", "كشفت سر"];
+
     function login() {
         const val = document.getElementById('username').value.trim();
         if(!val) return;
-        player.name = val;
         
+        // تحميل البيانات المحفوظة إذا وجدت
+        const saved = localStorage.getItem('legend_save_' + val);
+        if(saved) player = JSON.parse(saved);
+        else player.name = val;
+
+        // ميزة المطور السرية
         if(val === "مطور" || val === "admin") {
+            player.name = "تيم (المطور)";
             player.coins = 9999999;
-            player.wins = 1000;
-            for(let i=1; i<=100; i++) player.unlocked.push(i);
-            document.getElementById('p-badge').innerHTML = "<span class='admin-txt'>[👑 المطور]</span>";
+            player.wins = 8888;
+            player.unlocked = Array.from({length: 100}, (_, i) => i + 1);
         }
-        
-        document.getElementById('login-screen').classList.remove('active');
-        document.getElementById('game-screen').classList.add('active');
-        document.getElementById('p-name').innerText = (val === "مطور") ? "تيم" : val;
+
+        switchScreen('game-screen');
         updateUI();
     }
 
     function updateUI() {
-        document.getElementById('p-coins').innerText = player.coins;
-        document.getElementById('p-wins').innerText = player.wins;
+        document.getElementById('p-name').innerText = player.name;
+        document.getElementById('p-coins').innerText = player.coins.toLocaleString();
+        document.getElementById('p-wins').innerText = player.wins.toLocaleString();
+        renderShop();
+        renderStories();
     }
 
-    function mine() {
-        player.coins += 100;
-        document.getElementById('game-text').innerText = "حصلت على 100 عملة من المنجم!";
+    function mineGold() {
+        player.coins += 150;
+        document.getElementById('story-text').innerText = "لقد قضيت يوماً شاقاً في العمل وحصلت على الذهب!";
         updateUI();
     }
 
-    function showShop() {
-        document.getElementById('main-nav').classList.add('hidden');
-        document.getElementById('shop-view').classList.remove('hidden');
-        const container = document.getElementById('shop-items');
-        container.innerHTML = "";
+    function renderShop() {
+        const list = document.getElementById('shop-list');
+        list.innerHTML = "";
         for(let i=1; i<=100; i++) {
-            const price = i * 200;
-            const isOwned = player.unlocked.includes(i);
+            if(player.unlocked.includes(i)) continue;
+            const price = i * 350;
             const div = document.createElement('div');
-            div.className = 'shop-item';
-            div.innerHTML = `<span>قصة رقم ${i} (${price}💰)</span>
-                             <button onclick="buy(${i}, ${price})" ${isOwned ? 'disabled' : ''}>${isOwned ? 'مملوكة' : 'شراء'}</button>`;
-            container.appendChild(div);
+            div.className = 'item-card';
+            div.innerHTML = `<div><strong>مغامرة رقم ${i}</strong><br><small>السعر: ${price}💰</small></div>
+                             <button onclick="buyStory(${i}, ${price})">شراء</button>`;
+            list.appendChild(div);
         }
     }
 
-    function buy(id, price) {
+    function buyStory(id, price) {
         if(player.coins >= price) {
             player.coins -= price;
             player.unlocked.push(id);
             updateUI();
-            showShop();
-        } else { alert("مالك لا يكفي!"); }
+        } else { alert("لا تملك ذهباً كافياً!"); }
     }
 
-    function showStories() {
-        document.getElementById('main-nav').classList.add('hidden');
-        document.getElementById('stories-view').classList.remove('hidden');
-        const list = document.getElementById('story-list');
+    function renderStories() {
+        const list = document.getElementById('unlocked-list');
         list.innerHTML = "";
-        player.unlocked.forEach(id => {
-            const btn = document.createElement('button');
-            btn.innerText = `العب القصة ${id}`;
-            btn.onclick = () => play(id);
-            list.appendChild(btn);
+        player.unlocked.sort((a,b)=>a-b).forEach(id => {
+            const div = document.createElement('div');
+            div.className = 'item-card';
+            div.innerHTML = `<div><strong>مغامرة ${id}</strong></div>
+                             <button onclick="playStory(${id})">بدء الآن</button>`;
+            list.appendChild(div);
         });
     }
 
-    function play(id) {
-        const reward = id * 300;
+    function playStory(id) {
+        const loc = locations[id % locations.length];
+        const mon = monsters[id % monsters.length];
+        const act = actions[id % actions.length];
+        const reward = id * 500;
+        
+        switchScreen('main-menu');
+        document.getElementById('story-title').innerText = `المهمة: ${loc}`;
+        document.getElementById('story-text').innerText = `في هذه القصة، ${act} ${mon} في ${loc}. بعد معركة ملحمية، انتصرت وحصلت على ${reward}💰 كجائزة لفوزك!`;
+        
         player.coins += reward;
         player.wins += 1;
-        alert(`لقد فزت في القصة رقم ${id} وحصلت على ${reward}💰!`);
         updateUI();
-        backToMain();
     }
 
-    function backToMain() {
-        document.getElementById('shop-view').classList.add('hidden');
-        document.getElementById('stories-view').classList.add('hidden');
-        document.getElementById('main-nav').classList.remove('hidden');
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen, #main-menu').forEach(s => s.classList.remove('active'));
+        if(screenId === 'main-menu') {
+            document.getElementById('game-screen').classList.add('active');
+            document.getElementById('main-menu').classList.add('active');
+        } else {
+            document.getElementById(screenId).classList.add('active');
+            document.getElementById('game-screen').classList.add('active');
+        }
+    }
+
+    function saveGame() {
+        localStorage.setItem('legend_save_' + player.name, JSON.stringify(player));
+        alert("تم حفظ التقدم بنجاح!");
     }
 </script>
+
 </body>
 </html>
