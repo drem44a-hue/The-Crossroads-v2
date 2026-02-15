@@ -10,7 +10,7 @@
         body { font-family: 'Cairo', sans-serif; background: var(--dark); color: #e0e0e0; margin: 0; overflow-x: hidden; }
         .app-container { max-width: 800px; margin: 20px auto; padding: 20px; }
         
-        /* شاشة الدخول */
+        /* شاشة الدخول الاحترافية */
         .glass-card { background: var(--panel); border: 1px solid #2d333b; border-radius: 20px; padding: 40px; box-shadow: var(--glow); text-align: center; animation: fadeIn 0.8s ease; }
         input { width: 90%; padding: 15px; margin: 10px 0; background: #000; border: 1px solid #edba11; color: #fff; border-radius: 10px; font-size: 1.1rem; text-align: center; }
         
@@ -26,17 +26,20 @@
         .value { font-size: 1.3rem; font-weight: 900; color: var(--gold); }
 
         /* محرك القصة */
-        .story-display { background: #0a0c10; border-right: 5px solid var(--gold); padding: 25px; border-radius: 15px; margin: 20px 0; min-height: 100px; font-size: 1.2rem; line-height: 1.8; position: relative; text-align: right; }
+        .story-display { background: #0a0c10; border-right: 5px solid var(--gold); padding: 25px; border-radius: 15px; margin: 20px 0; min-height: 100px; font-size: 1.2rem; line-height: 1.8; position: relative; }
         
         /* المتجر */
         .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-height: 500px; overflow-y: auto; padding: 10px; }
         .item-card { background: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 15px; text-align: right; }
         .item-card.owned { border-color: #238636; background: #0d1117; }
 
-        .hidden { display: none; }
+        /* أنيميشن */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .dev-tag { background: linear-gradient(90deg, #ff0000, #ffcc00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900; }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 20% { transform: translate(-3px, 0px); } 40% { transform: translate(3px, 2px); } 100% { transform: translate(0,0); } }
+
+        .dev-tag { background: linear-gradient(90deg, #ff0000, #ffcc00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: dev-glow 1s infinite alternate; }
+        @keyframes dev-glow { from { filter: drop-shadow(0 0 2px #ffcc00); } to { filter: drop-shadow(0 0 10px #ff0000); } }
     </style>
 </head>
 <body>
@@ -71,7 +74,7 @@
                     <button onclick="Engine.mine()">⛏️ استخراج طاقة (+1000💰)</button>
                     <button onclick="UI.showTab('shop')">🛒 المتجر (100 قصة)</button>
                     <button onclick="UI.showTab('leads')">🏆 المتصدرين</button>
-                    <button onclick="location.reload()" style="background: #8b0000; color: white;">🚪 خروج</button>
+                    <button onclick="Engine.save()" style="background: #238636; color: white;">💾 حفظ يدوي</button>
                 </div>
             </div>
 
@@ -83,7 +86,7 @@
 
             <div id="leads-tab" class="hidden glass-card">
                 <h2 style="color: var(--gold)">🏆 أساطير السيرفر v1000</h2>
-                <div id="leaderboard-list" style="text-align: right; font-size: 1.2rem; line-height: 2;"></div>
+                <div id="leaderboard-list" style="text-align: right; font-size: 1.2rem;"></div>
                 <button onclick="UI.showTab('main')" style="width: 100%; margin-top: 20px;">🔙 العودة للساحة</button>
             </div>
         </div>
@@ -97,7 +100,9 @@
             const u = document.getElementById('username').value.trim();
             const ps = document.getElementById('password').value.trim();
             if(!u || !ps) return this.msg("⚠️ املأ البيانات!");
+            
             if(localStorage.getItem('v1000_'+u)) return this.msg("❌ الاسم موجود!");
+            
             localStorage.setItem('v1000_'+u, JSON.stringify({name:u, pass:ps, gold:0, wins:0, unlocked:[1]}));
             this.msg("✅ تم الإنشاء! ادخل الآن.", "#00ffcc");
         },
@@ -106,6 +111,7 @@
             const u = document.getElementById('username').value.trim();
             const ps = document.getElementById('password').value.trim();
 
+            // دخول المطور admin/admin
             if(u === "admin" && ps === "admin") {
                 this.p = { name: "تيم (المطور) 👑", gold: 99999999, wins: 50000, unlocked: Array.from({length:101},(_,i)=>i), rank: "خالق النظام" };
                 return this.launch();
@@ -122,8 +128,8 @@
         msg(t, c="red") { const m=document.getElementById('auth-msg'); m.innerText=t; m.style.color=c; },
 
         launch() {
-            document.getElementById('auth-view').classList.add('hidden');
-            document.getElementById('game-view').classList.remove('hidden');
+            document.getElementById('auth-view').style.display = 'none';
+            document.getElementById('game-view').style.display = 'block';
             if(this.p.name.includes("المطور")) document.getElementById('p-name').classList.add('dev-tag');
             this.update();
         },
@@ -132,8 +138,16 @@
             document.getElementById('p-name').innerText = this.p.name;
             document.getElementById('p-gold').innerText = this.p.gold.toLocaleString();
             document.getElementById('p-wins').innerText = this.p.wins;
-            document.getElementById('p-rank').innerText = this.p.wins > 100 ? "أسطورة" : "مغامر";
-            if(!this.p.name.includes("المطور")) localStorage.setItem('v1000_'+this.p.name, JSON.stringify(this.p));
+            this.p.rank = this.getRank();
+            document.getElementById('p-rank').innerText = this.p.rank;
+            this.save();
+        },
+
+        getRank() {
+            if(this.p.wins > 1000) return "إمبراطور";
+            if(this.p.wins > 500) return "أسطورة";
+            if(this.p.wins > 100) return "جنرال";
+            return "مغامر";
         },
 
         mine() {
@@ -155,14 +169,25 @@
         },
 
         play(id) {
+            document.getElementById('game-view').classList.add('shake');
+            setTimeout(() => document.getElementById('game-view').classList.remove('shake'), 500);
             document.getElementById('snd-win').play();
-            const r = id * 3000;
-            this.p.gold += r;
+            
+            const scenarios = [
+                `اقتحمت ${id} قلاع للعدو وسيطرت على ذهبهم.`,
+                `هزمت وحش الكود في المستوى ${id} وحررت البيانات.`,
+                `وجدت ثغرة في نظام الأعداء وحصلت على كنز رقم ${id}.`
+            ];
+            const msg = scenarios[Math.floor(Math.random()*scenarios.length)];
+            UI.typeWriter(`📜 مهمة ${id}: ${msg} المكافأة: ${id*3000} ذهبة!`);
+            
+            this.p.gold += id * 3000;
             this.p.wins += 1;
-            UI.typeWriter(`📜 المهمة ${id}: خضت معركة ملحمية وانتصرت! المكافأة: ${r} ذهبة.`);
             this.update();
             UI.showTab('main');
-        }
+        },
+
+        save() { if(!this.p.name.includes("المطور")) localStorage.setItem('v1000_'+this.p.name, JSON.stringify(this.p)); }
     };
 
     const UI = {
@@ -191,19 +216,22 @@
                 const owned = Engine.p.unlocked.includes(i);
                 list.innerHTML += `
                 <div class="item-card ${owned?'owned':''}">
-                    <b>مهمة أسطورية #${i}</b><br>
-                    <small>السعر: ${i*2000}💰</small><br><br>
-                    <button onclick="${owned?'Engine.play('+i+')':'Engine.buy('+i+')'}">${owned?'⚔️ لعب':'🛒 شراء'}</button>
+                    <strong>مهمة أسطورية #${i}</strong><br>
+                    <small>القيمة: ${i*2000}💰</small><br><br>
+                    <button onclick="${owned?'Engine.play('+i+')':'Engine.buy('+i+')'}">${owned?'⚔️ خوض القصة':'🛒 شراء الان'}</button>
                 </div>`;
             }
         },
 
         renderLeads() {
+            const board = document.getElementById('leaderboard-list');
             const data = [
-                {n: "تيم (المطور) 👑", w: 99999},
+                {n: "تيم (المطور) 👑", w: 999999},
+                {n: "الجنرال خالد", w: 5500},
+                {n: "سيد العوالم", w: 2300},
                 {n: Engine.p.name, w: Engine.p.wins}
             ].sort((a,b)=>b.w-a.w);
-            document.getElementById('leaderboard-list').innerHTML = data.map((l,i)=>`#${i+1} - ${l.n} (${l.w} فوز)`).join('<br>');
+            board.innerHTML = data.map((l,i)=>`<div>#${i+1} - ${l.n} <span style="color:var(--gold)">(${l.w} فوز)</span></div>`).join('');
         }
     };
 </script>
